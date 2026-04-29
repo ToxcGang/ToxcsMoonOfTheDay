@@ -1,6 +1,6 @@
 # Toxc's Moon Of The Day
 <p align="center">
-  <img src="https://i.imgur.com/9LgBPzp.png" alt="MOTD.png">
+  <img src="https://i.imgur.com/X1Ok3Ip.png" alt="MOTD.png">
 </p>
 
 This mod adds a concept you can find in similar "run-based" games: **seeded dailies & weeklies**.
