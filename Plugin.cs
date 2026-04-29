@@ -12,8 +12,8 @@ namespace ToxcsMoonOfTheDay;
 
 public static class PluginInfo
 {
-    public const string PLUGIN_GUID = "ToxcGang.MoonOfTheDay";
-    public const string PLUGIN_NAME = "Toxc'sMoonOfTheDay";
+    public const string PLUGIN_GUID = "Toxc.MoonOfTheDay";
+    public const string PLUGIN_NAME = "ToxcsMoonOfTheDay";
     public const string PLUGIN_VERSION = "1.0.0";
 }
 
