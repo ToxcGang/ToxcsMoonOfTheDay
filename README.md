@@ -1,6 +1,6 @@
-# Moon Of The Day
+# Toxc's Moon Of The Day
 <p align="center">
-  <img src="https://i.imgur.com/9NzB5Op.jpg" alt="MoonOfTheDay.png">
+  <img src="https://i.imgur.com/9LgBPzp.png" alt="MOTD.png">
 </p>
 
 This mod adds a concept you can find in similar "run-based" games: **seeded dailies & weeklies**.
@@ -9,7 +9,6 @@ All players that use this mod will have the **exact same** moon, with the exact 
 
 Note that currently, the moons and weathers are pulled from the base game (e.g. no new *content* is added - this is strictly a game mechanic mod). Any mods that add to the pool of moons, weather, scrap, and enemies *will* cause you to have a different experience than other players.
 
-> **Note that this mod uses BepInEx 5**
 
 ## New moons
 
@@ -31,8 +30,8 @@ Combinations that aren't possible in the base game are possible here... *and som
 
 ## GitHub repository
 
-The source code for this mod is available [here](https://github.com/MaxWasUnavailable/MoonOfTheDay). Please report bugs and suggestions there.
+The source code for this mod is available [here](https://github.com/ToxcGang/ToxcsMoonOfTheDay). Please report bugs and suggestions there.
 
-## Discord
+## Forked from
 
-For additional support, you can contact me on the [Unofficial Lethal Company Community](https://discord.gg/nYcQFEpXfU) server.
+https://github.com/MaxWasUnavailable/MoonOfTheDay
