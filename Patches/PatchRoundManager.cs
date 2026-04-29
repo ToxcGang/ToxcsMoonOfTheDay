@@ -1,64 +1,58 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using UnityEngine;
 using UnityEngine.AI;
 using Random = System.Random;
 
-// ReSharper disable RedundantAssignment
-// ReSharper disable InconsistentNaming
 #pragma warning disable Harmony003
 
-namespace MoonOfTheDay.Patches;
+namespace ToxcsMoonOfTheDay.Patches;
 
-/// <summary>
-///     Helper methods for the RoundManager patch
-/// </summary>
 public static class PatchRoundManagerHelpers
 {
     public static Vector3 SeededInsideUnitSphere(ref Random random)
     {
-        return new Vector3((float)(random.NextDouble() * 2 - 1),
-            (float)(random.NextDouble() * 2 - 1),
-            (float)(random.NextDouble() * 2 - 1));
+        Vector3 point;
+        
+        do
+        {
+            point = new Vector3((float)(random.NextDouble() * 2 - 1),
+                                (float)(random.NextDouble() * 2 - 1),
+                                (float)(random.NextDouble() * 2 - 1));
+        } while (point.sqrMagnitude > 1f);
+        
+        return point;
     }
 }
 
-/// <summary>
-///     Patches for the RoundManager class
-///     Makes both GetRandomNavMeshPositionInRadius and GetRandomNavMeshPositionInRadiusSpherical use a deterministic
-///     random number generator from the RoundManager instance instead of Unity's default random number generator.
-///     This allows for the seed to impact the spawn location of loot and enemies.
-/// </summary>
 [HarmonyPatch(typeof(RoundManager))]
 public class PatchRoundManager
 {
     [HarmonyPatch("GetRandomNavMeshPositionInRadiusSpherical")]
     [HarmonyPrefix]
     public static bool GetRandomNavMeshPositionInRadiusSpherical(ref RoundManager __instance, ref Vector3 __result,
-        Vector3 pos, float radius = 10f,
-        NavMeshHit navHit = default)
+        Vector3 pos, float radius = 10f, NavMeshHit navHit = default)
     {
-        pos = PatchRoundManagerHelpers.SeededInsideUnitSphere(ref __instance.LevelRandom) * radius + pos;
-        __result = NavMesh.SamplePosition(pos, out navHit, radius, -1) ? navHit.position : pos;
+        var targetPosition = PatchRoundManagerHelpers.SeededInsideUnitSphere(ref __instance.LevelRandom) * radius + pos;
+        __result = NavMesh.SamplePosition(targetPosition, out var hit, radius, -1) ? hit.position : targetPosition;
         return false;
     }
 
     [HarmonyPatch("GetRandomNavMeshPositionInRadius")]
     [HarmonyPrefix]
     public static bool GetRandomNavMeshPositionInRadius(ref RoundManager __instance, ref Vector3 __result, Vector3 pos,
-        float radius = 10f,
-        NavMeshHit navHit = default)
+        float radius = 10f, NavMeshHit navHit = default)
     {
-        var y = pos.y;
-        pos = PatchRoundManagerHelpers.SeededInsideUnitSphere(ref __instance.LevelRandom) * radius + pos;
-        pos.y = y;
-        if (NavMesh.SamplePosition(pos, out navHit, radius, -1))
+        var originalY = pos[1];
+        var targetPosition = PatchRoundManagerHelpers.SeededInsideUnitSphere(ref __instance.LevelRandom) * radius + pos;
+        targetPosition[1] = originalY;
+        if (NavMesh.SamplePosition(targetPosition, out var hit, radius, -1))
         {
-            __result = navHit.position;
+            __result = hit.position;
             return false;
         }
 
         Debug.Log("Unable to get random nav mesh position in radius! Returning old pos");
-        __result = pos;
+        __result = targetPosition;
         return false;
     }
 }
