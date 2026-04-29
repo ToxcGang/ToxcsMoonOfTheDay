@@ -1,44 +1,24 @@
-﻿using System.Linq;
+using System.Linq;
 using HarmonyLib;
 
-namespace MoonOfTheDay.Patches;
-
-internal static class PatchStartOfRoundHelpers
-{
-    public static bool IsVanillaMoon(SelectableLevel moon)
-    {
-        return !new[] { Plugin.DailyMoonName, Plugin.WeeklyMoonName }.Contains(moon.PlanetName);
-    }
-}
+namespace ToxcsMoonOfTheDay.Patches;
 
 [HarmonyPatch(typeof(StartOfRound))]
 public class PatchStartOfRound
 {
+    [HarmonyPatch("ChangeLevel")]
+    [HarmonyPrefix]
+    public static void ResolveCustomRoute(StartOfRound __instance, ref int levelID)
+    {
+        Plugin.TryResolveCustomRoute(__instance, ref levelID);
+    }
+
     [HarmonyPatch("StartGame")]
     [HarmonyPrefix]
     public static void SetSeed(StartOfRound __instance)
     {
         if (__instance.currentLevel == null) return;
-        if (PatchStartOfRoundHelpers.IsVanillaMoon(__instance.currentLevel))
-        {
-            Plugin.Logger.LogDebug($"Not setting seed for {__instance.currentLevel.PlanetName}...");
-            __instance.overrideRandomSeed = false;
-            return;
-        }
-
-        Plugin.Logger.LogDebug($"Setting seed for {__instance.currentLevel.PlanetName}...");
-
-        __instance.overrideRandomSeed = true;
-
-        switch (__instance.currentLevel.PlanetName)
-        {
-            case Plugin.DailyMoonName:
-                __instance.overrideSeedNumber = Plugin.GetDailySeed();
-                break;
-            case Plugin.WeeklyMoonName:
-                __instance.overrideSeedNumber = Plugin.GetWeeklySeed();
-                break;
-        }
+        Plugin.SetSeedForActiveRoute(__instance);
     }
 
     [HarmonyPatch("Awake")]
@@ -48,19 +28,6 @@ public class PatchStartOfRound
         Plugin.Logger.LogDebug("Inserting moons in StartOfRound...");
 
         var startOfRound = StartOfRound.Instance;
-
-        var levelList = startOfRound.levels.ToList();
-
-        var dailyMoon = Plugin.GetDailyMoon(startOfRound.levels);
-        var weeklyMoon = Plugin.GetWeeklyMoon(startOfRound.levels);
-
-        // Remove first to prevent potential issues with duplicate moons
-        levelList.RemoveAll(level => level.PlanetName == dailyMoon.PlanetName);
-        levelList.RemoveAll(level => level.PlanetName == weeklyMoon.PlanetName);
-
-        levelList.Add(dailyMoon);
-        levelList.Add(weeklyMoon);
-
-        startOfRound.levels = levelList.ToArray();
+        startOfRound.levels = Plugin.WithCustomMoons(startOfRound.levels);
     }
 }
